@@ -366,3 +366,93 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     </mat-tab-group>
   </div>
 </div>
+<div class="diet-container">
+
+  <div>
+    <button type="button" (click)="showSection(section: 'diet')">Diet</button>
+    <button type="button" class="btn btn-secondary" (click)="showSection(section: 'meal')">Meals</button>
+    <button type="button" class="btn btn-secondary" (click)="showSection(section: 'ingredient')">Ingredient</button>
+  </div>
+
+  <div *ngIf="selectedSection==='diet'">
+    <label for="dietName">Diet Name</label>
+    <input id="dietName" formControlName="dietName" />
+  </div>
+
+  <div *ngIf="selectedSection==='meal'">
+    <mat-tab-group>
+      <mat-tab label="Create Meal">
+        <div class="meal-container" style="margin-left: 428px;">
+          <form (ngSubmit)="addMeal()" #mealForm="ngForm">
+            <div class="form-group col-lg-12">
+              <input [(ngModel)]="mealName" name="mealName" class="form-control" placeholder="Enter the Name of meal" required>
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="mealDescription" name="mealDescription" class="form-controli" placeholder="Enter the Description" required>
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="calories" name="calories" class="form-control1" placeholder="Enter Amount of calories" required>
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="protein" name="protein" class="form-control" placeholder="Enter Amount of protein" required>
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="fibre" name="fibre" class="form-control1" placeholder="Enter Amount of fiber" required>
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="fat" name="fat" placeholder="Enter Amount of Fat" required>
+            </div>
+            <div>
+              <button class="btn btn-outline-primary" type="submit" [disabled]="!mealForm.form.valid">Add meal</button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Add Ingredients">
+        <div *ngIf="isMealAdded" class="add-ingredients-container-search">
+          <ul class="ingredient-list">
+            {{ingredient.ingredientName}}
+            <label for="ingredient-search" class="add-ingredients-container-label">Search for an Ingredient</label>
+            <input type="text" id="ingredient-search" [(ngModel)]="searchTerm" name="searchTerm" (input)="searchIngredients()" placeholder="Search" class="add-ingredients-container-input">
+            <li *ngFor="let ingredient of searchResults">
+              {{ingredient.ingredientId}}
+              <input type="number" placeholder="Quantity" [ngModel]="quantity"/>
+              <button (click)="addIngredient(ingredient)" class="add-ingredients-container-button">Add</button>
+            </li>
+          </ul>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Selected Ingredients">
+        <div class="table-container" *ngIf="selectedIngredients.length>0">
+          <h3 class="SelectedIn">Selected Ingredient</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Ingredient Name</th>
+                <th>Quantity</th>
+                <th>Action</th>
+                <th>Add to Meal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ingredient of selectedIngredients">
+                <td style="color: white">{{ ingredient.ingredientName }}</td>
+                <td>
+                  <input type="number" [(ngModel)]="ingredient.quantity" name="quantity_{{ingredient.ingredientId}}" placeholder="Quantity">
+                </td>
+                <td>
+                  <button (click)="removeIngredient(ingredient)">Remove</button>
+                </td>
+                <td>
+                  <button class="add-ingredients-container-button" style="background-color:lawngreen">Add</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
