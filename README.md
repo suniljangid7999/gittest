@@ -456,3 +456,71 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     </mat-tab-group>
   </div>
 </div>
+
+
+
+<mat-tab-group (selectedTabChange)="onTabChange($event)">
+  <mat-tab label="Create Meal">
+    <!-- Create Meal Content Here -->
+  </mat-tab>
+
+  <mat-tab label="Display Meal">
+    <!-- Display Meal Table -->
+    <div *ngIf="meals.length > 0" class="table-container">
+      <h3>Available Meals</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Meal Name</th>
+            <th>Calories</th>
+            <th>Protein</th>
+            <th>Fibre</th>
+            <th>Fat</th>
+            <th>Ingredients</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let meal of meals">
+            <td>{{ meal.mealName }}</td>
+            <td>{{ meal.calories }}</td>
+            <td>{{ meal.protein }}</td>
+            <td>{{ meal.fibre }}</td>
+            <td>{{ meal.fat }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let ingredient of meal.ingredients">{{ ingredient.ingredientName }} - {{ ingredient.quantity }}</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-tab>
+</mat-tab-group>
+
+
+
+  getAllMeals(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/meals`);  // Adjust URL according to your backend API
+  }
+
+  // Method to load meals when the tab is selected
+  loadMeals() {
+    this.getAllMeals().subscribe(
+      (data: any[]) => {
+        this.meals = data;
+        console.log('Meals fetched:', this.meals);
+      },
+      (error) => {
+        console.error('Error fetching meals:', error);
+      }
+    );
+  }
+
+
+  onTabChange(event: any): void {
+  // Check if the Display Meal tab is selected
+  if (event.index === 1) {
+    this.loadMeals();
+  }
+}
