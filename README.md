@@ -252,3 +252,117 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     margin-top: 5px;
   }
 }
+
+
+
+<div class="diet-container">
+  <!-- Buttons to switch sections -->
+  <div>
+    <button mat-raised-button color="primary" (click)="showSection('diet')">Diet</button>
+    <button mat-raised-button color="accent" (click)="showSection('meal')">Meals</button>
+    <button mat-raised-button color="warn" (click)="showSection('ingredient')">Ingredient</button>
+  </div>
+
+  <!-- Diet Section -->
+  <div *ngIf="selectedSection === 'diet'">
+    <mat-form-field appearance="fill">
+      <mat-label>Diet Name</mat-label>
+      <input matInput id="dietName" formControlName="dietName" />
+    </mat-form-field>
+  </div>
+
+  <!-- Meal Section -->
+  <div *ngIf="selectedSection === 'meal'">
+    <mat-tab-group>
+      <mat-tab label="Create Meal">
+        <div class="meal-container">
+          <form (ngSubmit)="addMeal()" #mealForm="ngForm">
+            <mat-form-field appearance="fill" class="form-group">
+              <mat-label>Meal Name</mat-label>
+              <input matInput [(ngModel)]="mealName" name="mealName" required placeholder="Enter the Name of meal">
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Meal Description</mat-label>
+              <input matInput [(ngModel)]="mealDescription" name="mealDescription" required placeholder="Enter the Description">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Calories</mat-label>
+              <input matInput type="number" [(ngModel)]="calories" name="calories" required placeholder="Enter Amount of calories">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Protein</mat-label>
+              <input matInput type="number" [(ngModel)]="protein" name="protein" required placeholder="Enter Amount of protein">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Fiber</mat-label>
+              <input matInput type="number" [(ngModel)]="fibre" name="fibre" required placeholder="Enter Amount of fiber">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Fat</mat-label>
+              <input matInput type="number" [(ngModel)]="fat" name="fat" required placeholder="Enter Amount of Fat">
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="!mealForm.form.valid">Add Meal</button>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Add Ingredients Section -->
+      <mat-tab label="Add Ingredients">
+        <div *ngIf="isMealAdded" class="add-ingredients-container">
+          <mat-form-field appearance="fill">
+            <mat-label>Search Ingredient</mat-label>
+            <input matInput type="text" [(ngModel)]="searchTerm" (input)="searchIngredients()" placeholder="Search for an Ingredient">
+          </mat-form-field>
+
+          <mat-list>
+            <mat-list-item *ngFor="let ingredient of searchResults">
+              <span matLine>{{ ingredient.ingredientName }}</span>
+              <mat-form-field>
+                <mat-label>Quantity</mat-label>
+                <input matInput type="number" [(ngModel)]="ingredient.quantity" placeholder="Quantity">
+              </mat-form-field>
+              <button mat-raised-button color="accent" (click)="addIngredient(ingredient)">Add</button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </mat-tab>
+
+      <!-- Selected Ingredients Table -->
+      <mat-tab label="Selected Ingredients">
+        <div *ngIf="selectedIngredients.length > 0" class="table-container">
+          <h3>Selected Ingredients</h3>
+          <table mat-table [dataSource]="selectedIngredients" class="mat-elevation-z8">
+            <ng-container matColumnDef="ingredientName">
+              <th mat-header-cell *matHeaderCellDef> Ingredient Name </th>
+              <td mat-cell *matCellDef="let element"> {{element.ingredientName}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef> Quantity </th>
+              <td mat-cell *matCellDef="let element">
+                <input matInput type="number" [(ngModel)]="element.quantity">
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef> Actions </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button color="warn" (click)="removeIngredient(element)">Remove</button>
+                <button mat-raised-button color="primary">Add to Meal</button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['ingredientName', 'quantity', 'actions']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['ingredientName', 'quantity', 'actions']"></tr>
+          </table>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
