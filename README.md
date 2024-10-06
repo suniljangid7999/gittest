@@ -524,3 +524,49 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     this.loadMeals();
   }
 }
+
+
+<div>
+  <form [formGroup]="dietForm" (ngSubmit)="onSubmit()">
+    <label for="dietName">Diet Name</label>
+    <input id="dietName" formControlName="dietName" />
+
+    <label for="dietType">Diet Type</label>
+    <input id="dietType" formControlName="dietType" />
+
+    <label for="dietDescription">Diet Description</label>
+    <textarea id="dietDescription" formControlName="dietDescription"></textarea>
+
+    <label for="dietMeal">Search Meals</label>
+    <input type="text" (input)="onMealSearch($event.target.value)" placeholder="Search meals by name" />
+    <div *ngIf="filteredMeals.length > 0">
+      <ul>
+        <li *ngFor="let meal of filteredMeals" (click)="addMealToDiet(meal)">
+          {{ meal.mealName }}
+        </li>
+      </ul>
+    </div>
+
+    <button type="submit">Create Diet</button>
+  </form>
+
+  <!-- Table to display diets -->
+  <div>
+    <table>
+      <thead>
+        <tr>
+          <th>Diet Name</th>
+          <th>Meal Name</th>
+          <th>Ingredient Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let diet of diets">
+          <td>{{ diet.dietName }}</td>
+          <td>{{ diet.meals.map(m => m.mealName).join(', ') }}</td>
+          <td>{{ diet.meals.map(m => m.ingredients.map(i => i.name).join(', ')).join(', ') }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
