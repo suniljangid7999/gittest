@@ -570,3 +570,51 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     </table>
   </div>
 </div>
+
+
+<div *ngIf="selectedSection==='diet'">
+  <div class="row" style="margin-top: 6vh">
+    
+    <!-- Display meals -->
+    <div class="col-sm-6">
+      <ul class="Meal-list">
+        <li class="row" *ngFor="let meal of searchMealResult">
+          <div class="col-md-4">{{ meal.mealName }}</div>
+          <div class="col-md-4">{{ meal.ingredients }}</div>
+          <div>
+            <button (click)="selectMeal(meal)"> ADD Meal</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Display diets in a table -->
+    <div class="col-sm-6">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Diet Name</th>
+            <th>Diet Type</th>
+            <th>Diet Description</th>
+            <th>Meals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let diet of diets">
+            <td>{{ diet.dietName }}</td>
+            <td>{{ diet.dietType }}</td>
+            <td>{{ diet.dietDescription }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let meal of diet.dietMeals">
+                  {{ meal.mealName }}
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+</div>
