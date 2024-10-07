@@ -1,3 +1,490 @@
+package com.socgen.laxmihealth.user;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import com.socgen.laxmihealth.auth.AuthService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+@WebMvcTest(UserController.class)
+class UserControllerTest {
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private AuthService authService;
+
+    @InjectMocks
+    private UserController userController;
+
+    private MockMvc mockMvc;
+
+    private User user1;
+    private User user2;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+
+        user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("user1");
+        user1.setUserRoles(new HashSet<>(List.of("ROLE_USER")));
+
+        user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("user2");
+        user2.setUserRoles(new HashSet<>(List.of("ROLE_USER")));
+    }
+
+    @Test
+    void testGetAllUsers() throws Exception {
+        // Mocking service call
+        when(userService.getAllUsers()).thenReturn(Arrays.asList(user1, user2));
+
+        // Performing GET request and asserting the response
+        mockMvc.perform(get("/user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username").value("user1"))
+                .andExpect(jsonPath("$[1].username").value("user2"));
+
+        verify(userService, times(1)).getAllUsers();
+    }
+
+    @Test
+    void testGetCurrentUser() throws Exception {
+        // Mocking the current user from authService
+        when(authService.getCurrentUser()).thenReturn(user1);
+
+        // Performing GET request and asserting the response
+        mockMvc.perform(get("/user/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("user1"));
+
+        verify(authService, times(1)).getCurrentUser();
+    }
+
+    @Test
+    void testCreateUser() throws Exception {
+        // Mocking service call
+        when(userService.createUser(any(User.class))).thenReturn(user1);
+
+        // JSON input for request
+        String userJson = "{ \"username\": \"user1\", \"password\": \"password123\" }";
+
+        // Performing POST request and asserting the response
+        mockMvc.perform(post("/user/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("user1"));
+
+        verify(userService, times(1)).createUser(any(User.class));
+    }
+
+    @Test
+    void testLogin() throws Exception {
+        // Mocking auth service call
+        when(authService.verifyUser(any(User.class))).thenReturn("token123");
+
+        // JSON input for request
+        String loginJson = "{ \"username\": \"user1\", \"password\": \"password123\" }";
+
+        // Performing POST request and asserting the response
+        mockMvc.perform(post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(loginJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string("token123"));
+
+        verify(authService, times(1)).verifyUser(any(User.class));
+    }
+
+    @Test
+    void testDeleteUser() throws Exception {
+        // No mocking needed as delete method has void return type
+
+        // Performing DELETE request and asserting the response
+        mockMvc.perform(delete("/user/1"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).deleteUser(1L);
+    }
+
+    @Test
+    void testAddRoleToUser() throws Exception {
+        // Mocking service call
+        when(userService.addRoleToUser(1L, "ROLE_ADMIN")).thenReturn(user1);
+
+        // Performing PUT request and asserting the response
+        mockMvc.perform(put("/user/1/addRole")
+                .param("roleToAdd", "ROLE_ADMIN"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).addRoleToUser(1L, "ROLE_ADMIN");
+    }
+
+    @Test
+    void testRemoveRoleFromUser() throws Exception {
+        // Mocking service call
+        when(userService.removeRoleFromUser(1L, "ROLE_USER")).thenReturn(user1);
+
+        // Performing PUT request and asserting the response
+        mockMvc.perform(put("/user/1/removeRole")
+                .param("roleToRemove", "ROLE_USER"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).removeRoleFromUser(1L, "ROLE_USER");
+    }
+}
+
+
+
+
+
+
+package com.socgen.laxmihealth.meal;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import com.socgen.laxmihealth.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+
+import java.util.List;
+import java.util.Optional;
+
+class MealServiceTest {
+
+    @Mock
+    private MealRepository mealRepository;
+
+    @Mock
+    private IngredientRepository ingredientRepository;
+
+    @Mock
+    private MealIngredientRepository mealIngredientRepository;
+
+    @InjectMocks
+    private MealService mealService;
+
+    private Meal meal1;
+    private Meal meal2;
+    private Ingredient ingredient;
+    private MealIngredient mealIngredient;
+
+    @BeforeEach
+    void setUp() {
+        meal1 = new Meal();
+        meal1.setMealId(1L);
+        meal1.setMealName("Meal 1");
+
+        meal2 = new Meal();
+        meal2.setMealId(2L);
+        meal2.setMealName("Meal 2");
+
+        ingredient = new Ingredient();
+        ingredient.setIngredientId(1L);
+        ingredient.setIngredientName("Ingredient 1");
+
+        mealIngredient = new MealIngredient();
+        mealIngredient.setMeal(meal1);
+        mealIngredient.setIngredient(ingredient);
+        mealIngredient.setQuantity(2);
+    }
+
+    @Test
+    void testGetAllMeals() {
+        // Mocking repository call
+        when(mealRepository.findAll()).thenReturn(List.of(meal1, meal2));
+
+        // Call the service method
+        List<Meal> meals = mealService.getAllMeals();
+
+        // Verify the result
+        assertEquals(2, meals.size());
+        verify(mealRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetMealsByName() {
+        // Mocking repository call
+        when(mealRepository.findAllByMealName("Meal 1")).thenReturn(List.of(meal1));
+
+        // Call the service method
+        List<Meal> meals = mealService.getMealsByName("Meal 1");
+
+        // Verify the result
+        assertEquals(1, meals.size());
+        assertEquals("Meal 1", meals.get(0).getMealName());
+        verify(mealRepository, times(1)).findAllByMealName("Meal 1");
+    }
+
+    @Test
+    void testCreateMeal() {
+        // Mocking repository call
+        when(mealRepository.save(meal1)).thenReturn(meal1);
+
+        // Call the service method
+        Meal createdMeal = mealService.createMeal(meal1);
+
+        // Verify the result
+        assertNotNull(createdMeal);
+        assertEquals("Meal 1", createdMeal.getMealName());
+        verify(mealRepository, times(1)).save(meal1);
+    }
+
+    @Test
+    void testAddIngredientToMeal() {
+        // Mocking repository calls
+        when(mealRepository.findById(1L)).thenReturn(Optional.of(meal1));
+        when(ingredientRepository.getIngredientByIngredientId(1L)).thenReturn(ingredient);
+        when(mealIngredientRepository.getMealIngredientByIngredientAndMeal(ingredient, meal1))
+                .thenReturn(Optional.empty());
+
+        // Call the service method
+        Meal updatedMeal = mealService.addIngredientToMeal(1L, 1L, 5);
+
+        // Verify the result
+        assertNotNull(updatedMeal);
+        assertEquals(1, updatedMeal.getIngredients().size());
+        verify(mealRepository, times(1)).findById(1L);
+        verify(ingredientRepository, times(1)).getIngredientByIngredientId(1L);
+        verify(mealIngredientRepository, times(1))
+                .getMealIngredientByIngredientAndMeal(ingredient, meal1);
+        verify(mealIngredientRepository, times(1)).save(any(MealIngredient.class));
+    }
+
+    @Test
+    void testAddIngredientToMeal_ExistingMealIngredient() {
+        // Mocking repository calls for an existing meal ingredient
+        when(mealRepository.findById(1L)).thenReturn(Optional.of(meal1));
+        when(ingredientRepository.getIngredientByIngredientId(1L)).thenReturn(ingredient);
+        when(mealIngredientRepository.getMealIngredientByIngredientAndMeal(ingredient, meal1))
+                .thenReturn(Optional.of(mealIngredient));
+
+        // Call the service method
+        Meal updatedMeal = mealService.addIngredientToMeal(1L, 1L, 10);
+
+        // Verify the result
+        assertNotNull(updatedMeal);
+        assertEquals(10, mealIngredient.getQuantity());  // Quantity updated
+        verify(mealRepository, times(1)).findById(1L);
+        verify(ingredientRepository, times(1)).getIngredientByIngredientId(1L);
+        verify(mealIngredientRepository, times(1)).getMealIngredientByIngredientAndMeal(ingredient, meal1);
+        verify(mealIngredientRepository, times(1)).save(mealIngredient);
+    }
+
+    @Test
+    void testAddIngredientToMeal_MealNotFound() {
+        // Mocking repository call for a missing meal
+        when(mealRepository.findById(3L)).thenReturn(Optional.empty());
+
+        // Call the service method and assert exception
+        assertThrows(ObjectNotFoundException.class, () -> {
+            mealService.addIngredientToMeal(3L, 1L, 5);
+        });
+
+        verify(mealRepository, times(1)).findById(3L);
+        verify(ingredientRepository, never()).getIngredientByIngredientId(anyLong());
+        verify(mealIngredientRepository, never()).getMealIngredientByIngredientAndMeal(any(), any());
+    }
+}
+
+
+
+
+
+package com.socgen.laxmihealth.meal;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.socgen.laxmihealth.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@WebMvcTest(controllers = MealController.class)
+@AutoConfigureMockMvc
+class MealControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private MealService mealService;
+
+    @MockBean
+    private IngredientService ingredientService;
+
+    private Meal meal1;
+
+    @BeforeEach
+    void setUp() {
+        meal1 = new Meal();
+        meal1.setMealId(1L);
+        meal1.setMealName("Meal 1");
+    }
+
+    @Test
+    void testGetAllMeals() throws Exception {
+        // Mocking service method
+        when(mealService.getAllMeals()).thenReturn(Collections.singletonList(meal1));
+
+        // Perform GET request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/meal")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mealName").value("Meal 1"));
+
+        // Verify service method invocation
+        verify(mealService, times(1)).getAllMeals();
+    }
+
+    @Test
+    void testGetMealsByName() throws Exception {
+        // Mocking service method
+        when(mealService.getMealsByName("Meal 1")).thenReturn(Collections.singletonList(meal1));
+
+        // Perform GET request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/meal/name")
+                .param("mealName", "Meal 1")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mealName").value("Meal 1"));
+
+        // Verify service method invocation
+        verify(mealService, times(1)).getMealsByName("Meal 1");
+    }
+
+    @Test
+    void testCreateMeal() throws Exception {
+        // Prepare request body
+        ObjectMapper objectMapper = new ObjectMapper();
+        String mealJson = objectMapper.writeValueAsString(meal1);
+
+        // Mocking service method
+        when(mealService.createMeal(any(Meal.class))).thenReturn(meal1);
+
+        // Perform POST request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/meal")
+                .content(mealJson)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.mealName").value("Meal 1"));
+
+        // Verify service method invocation
+        verify(mealService, times(1)).createMeal(any(Meal.class));
+    }
+
+    @Test
+    void testAddIngredientToMeal() throws Exception {
+        // Mocking service method
+        when(mealService.addIngredientToMeal(eq(1L), eq(2L), eq(5))).thenReturn(meal1);
+
+        // Perform POST request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/meal/1/addIngredient")
+                .param("ingredientId", "2")
+                .param("quantity", "5")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.mealName").value("Meal 1"));
+
+        // Verify service method invocation
+        verify(mealService, times(1)).addIngredientToMeal(eq(1L), eq(2L), eq(5));
+    }
+
+    @Test
+    void testDeleteIngredient() throws Exception {
+        // Mocking service method
+        mockMvc.perform(MockMvcRequestBuilders.delete("/meal/ingredient/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        // Verify service method invocation
+        verify(ingredientService, times(1)).deleteIngredientById(eq(1L));
+    }
+
+    @Test
+    void testDeleteIngredient_NotFound() throws Exception {
+        // Mocking service method to throw ObjectNotFoundException
+        doThrow(new ObjectNotFoundException("Ingredient", Long.class)).when(ingredientService).deleteIngredientById(eq(1L));
+
+        // Perform DELETE request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.delete("/meal/ingredient/1")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status
+        resultActions.andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testGetIngredientsByName() throws Exception {
+        // Mocking service method
+        when(ingredientService.getAllIngredientsByName("Ingredient 1")).thenReturn(Collections.singletonList(new Ingredient(1L, "Ingredient 1")));
+
+        // Perform GET request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/meal/ingredient/name")
+                .param("ingredientName", "Ingredient 1")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].ingredientName").value("Ingredient 1"));
+
+        // Verify service method invocation
+        verify(ingredientService, times(1)).getAllIngredientsByName("Ingredient 1");
+    }
+}
+
+
+
+
+
 # gittest
 <div>
   <h2>Add Ingredients to Meal</h2>
