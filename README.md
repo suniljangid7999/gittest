@@ -1,3 +1,131 @@
+package com.socgen.laxmihealth.community;
+
+import com.socgen.laxmihealth.community.CommunityController;
+import com.socgen.laxmihealth.community.CommunityPost;
+import com.socgen.laxmihealth.community.CommunityService;
+import com.socgen.laxmihealth.community.PostComment;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+
+public class CommunityControllerTest {
+
+    @InjectMocks
+    private CommunityController communityController;
+
+    @Mock
+    private CommunityService communityService;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testGetAllPosts() {
+        // Arrange
+        List<CommunityPost> posts = new ArrayList<>();
+        posts.add(new CommunityPost(1L, "Post 1", "Content 1", null));
+        posts.add(new CommunityPost(2L, "Post 2", "Content 2", null));
+
+        when(communityService.getAllPosts()).thenReturn(posts);
+
+        // Act
+        ResponseEntity<List<CommunityPost>> response = communityController.getAllPost();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        verify(communityService, times(1)).getAllPosts();
+    }
+
+    @Test
+    public void testGetPostById() {
+        // Arrange
+        long postId = 1L;
+        CommunityPost post = new CommunityPost(postId, "Post 1", "Content 1", null);
+
+        when(communityService.getPostById(postId)).thenReturn(post);
+
+        // Act
+        ResponseEntity<CommunityPost> response = communityController.getPost(postId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(postId, response.getBody().getPostId());
+        verify(communityService, times(1)).getPostById(postId);
+    }
+
+    @Test
+    public void testCreatePost() {
+        // Arrange
+        CommunityPost newPost = new CommunityPost(null, "New Post", "New Content", null);
+        CommunityPost savedPost = new CommunityPost(1L, "New Post", "New Content", null);
+
+        when(communityService.createOrUpdatePost(any(CommunityPost.class))).thenReturn(savedPost);
+
+        // Act
+        ResponseEntity<CommunityPost> response = communityController.createPost(newPost);
+
+        // Assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(savedPost.getPostId(), response.getBody().getPostId());
+        verify(communityService, times(1)).createOrUpdatePost(any(CommunityPost.class));
+    }
+
+    @Test
+    public void testAddComment() {
+        // Arrange
+        long postId = 1L;
+        PostComment comment = new PostComment("This is a comment", null);
+        PostComment savedComment = new PostComment("This is a comment", null);
+
+        when(communityService.addComment(any(PostComment.class), anyLong())).thenReturn(savedComment);
+
+        // Act
+        ResponseEntity<PostComment> response = communityController.addComment(postId, comment);
+
+        // Assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(savedComment, response.getBody());
+        verify(communityService, times(1)).addComment(any(PostComment.class), anyLong());
+    }
+
+    @Test
+    public void testTogglePostLike() {
+        // Arrange
+        long postId = 1L;
+
+        // Act
+        ResponseEntity<Void> response = communityController.togglePostLike(postId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(communityService, times(1)).togglePostLike(postId);
+    }
+}
+
+
+
+
+
+
+
+
+
+
 package com.socgen.laxmihealth.workout;
 
 import com.socgen.laxmihealth.workout.Workout;
