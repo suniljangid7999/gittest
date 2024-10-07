@@ -1,5 +1,112 @@
 package com.socgen.laxmihealth.diet;
 
+import com.socgen.laxmihealth.diet.Diet;
+import com.socgen.laxmihealth.diet.DietController;
+import com.socgen.laxmihealth.diet.DietService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class DietControllerTest {
+
+    @InjectMocks
+    private DietController dietController;
+
+    @Mock
+    private DietService dietService;
+
+    private Diet diet;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        diet = new Diet();
+        diet.setDietId(1L);
+        diet.setDietName("Keto Diet");
+        diet.setDietType("Low Carb");
+        diet.setDietDescription("A low carbohydrate diet");
+    }
+
+    @Test
+    void testGetAllDiets() {
+        List<Diet> diets = new ArrayList<>();
+        diets.add(diet);
+
+        when(dietService.getAllDiets()).thenReturn(diets);
+
+        ResponseEntity<List<Diet>> response = dietController.getAllDiets();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().size());
+    }
+
+    @Test
+    void testGetDietById() {
+        when(dietService.getDietById(1L)).thenReturn(Optional.of(diet));
+
+        ResponseEntity<Diet> response = dietController.getDietById(1L);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(diet, response.getBody());
+    }
+
+    @Test
+    void testGetDietById_NotFound() {
+        when(dietService.getDietById(1L)).thenReturn(Optional.empty());
+
+        ResponseEntity<Diet> response = dietController.getDietById(1L);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void testCreateDiet() {
+        when(dietService.createOrUpdateDiet(any(Diet.class))).thenReturn(diet);
+
+        ResponseEntity<Diet> response = dietController.createDiet(diet);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(diet, response.getBody());
+    }
+
+    @Test
+    void testUpdateDiet() {
+        when(dietService.createOrUpdateDiet(any(Diet.class))).thenReturn(diet);
+
+        ResponseEntity<Diet> response = dietController.updateDiet(diet);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(diet, response.getBody());
+    }
+
+    @Test
+    void testDeleteDiet() {
+        doNothing().when(dietService).deleteDietById(1L);
+
+        ResponseEntity<Void> response = dietController.deleteDiet(1L);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+package com.socgen.laxmihealth.diet;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
