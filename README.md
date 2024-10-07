@@ -618,3 +618,105 @@ public List<Ingredient> searchIngredients(@RequestParam String name) {
     
   </div>
 </div>
+
+
+
+package com.socgen.laxmihealth.diet;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+class DietServiceTest {
+
+    @Mock
+    private DietRepository dietRepository;
+
+    @InjectMocks
+    private DietService dietService;
+
+    private Diet diet1;
+    private Diet diet2;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        
+        diet1 = new Diet();
+        diet1.setDietId(1L);
+        diet1.setDietName("Keto");
+
+        diet2 = new Diet();
+        diet2.setDietId(2L);
+        diet2.setDietName("Vegan");
+    }
+
+    @Test
+    void testGetAllDiets() {
+        // Mocking repository to return a list of diets
+        when(dietRepository.findAll()).thenReturn(Arrays.asList(diet1, diet2));
+
+        // Call the service method
+        List<Diet> dietList = dietService.getAllDiets();
+
+        // Asserts
+        assertEquals(2, dietList.size());
+        verify(dietRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetDietById() {
+        // Mocking repository to return a diet by its ID
+        when(dietRepository.findById(1L)).thenReturn(Optional.of(diet1));
+
+        // Call the service method
+        Diet foundDiet = dietService.getDietById(1L);
+
+        // Asserts
+        assertNotNull(foundDiet);
+        assertEquals("Keto", foundDiet.getDietName());
+        verify(dietRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCreateOrUpdateDiet() {
+        // Mocking repository to save a diet
+        when(dietRepository.save(diet1)).thenReturn(diet1);
+
+        // Call the service method
+        Diet savedDiet = dietService.createOrUpdateDiet(diet1);
+
+        // Asserts
+        assertNotNull(savedDiet);
+        assertEquals("Keto", savedDiet.getDietName());
+        verify(dietRepository, times(1)).save(diet1);
+    }
+
+    @Test
+    void testDeleteDietById() {
+        // Call the service method
+        dietService.deleteDietById(1L);
+
+        // Verifies the delete method is called once
+        verify(dietRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDietNotFound() {
+        // Mocking repository to return an empty Optional when diet is not found
+        when(dietRepository.findById(3L)).thenReturn(Optional.empty());
+
+        // Call the service method and expect an exception
+        assertThrows(ObjectNotFoundException.class, () -> dietService.getDietById(3L));
+    }
+}
