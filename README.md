@@ -1,3 +1,149 @@
+package com.socgen.laxmihealth.diet;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@WebMvcTest(controllers = DietController.class)
+@AutoConfigureMockMvc
+class DietControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private DietService dietService;
+
+    private Diet diet1;
+
+    @BeforeEach
+    void setUp() {
+        diet1 = new Diet();
+        diet1.setDietId(1L);
+        diet1.setDietName("Diet 1");
+    }
+
+    @Test
+    void testGetAllDiets() throws Exception {
+        // Mocking service method
+        when(dietService.getAllDiets()).thenReturn(Collections.singletonList(diet1));
+
+        // Perform GET request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/diet")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dietName").value("Diet 1"));
+
+        // Verify service method invocation
+        verify(dietService, times(1)).getAllDiets();
+    }
+
+    @Test
+    void testGetDietById() throws Exception {
+        // Mocking service method
+        when(dietService.getDietById(1L)).thenReturn(diet1);
+
+        // Perform GET request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/diet/{dietId}", 1)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dietName").value("Diet 1"));
+
+        // Verify service method invocation
+        verify(dietService, times(1)).getDietById(1L);
+    }
+
+    @Test
+    void testCreateDiet() throws Exception {
+        // Prepare request body
+        ObjectMapper objectMapper = new ObjectMapper();
+        String dietJson = objectMapper.writeValueAsString(diet1);
+
+        // Mocking service method
+        when(dietService.createOrUpdateDiet(any(Diet.class))).thenReturn(diet1);
+
+        // Perform POST request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/diet")
+                .content(dietJson)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dietName").value("Diet 1"));
+
+        // Verify service method invocation
+        verify(dietService, times(1)).createOrUpdateDiet(any(Diet.class));
+    }
+
+    @Test
+    void testUpdateDiet() throws Exception {
+        // Prepare request body
+        ObjectMapper objectMapper = new ObjectMapper();
+        String dietJson = objectMapper.writeValueAsString(diet1);
+
+        // Mocking service method
+        when(dietService.createOrUpdateDiet(any(Diet.class))).thenReturn(diet1);
+
+        // Perform PUT request
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.put("/diet")
+                .content(dietJson)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Verify status and content
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dietName").value("Diet 1"));
+
+        // Verify service method invocation
+        verify(dietService, times(1)).createOrUpdateDiet(any(Diet.class));
+    }
+
+    @Test
+    void testDeleteDiet() throws Exception {
+        // Perform DELETE request
+        mockMvc.perform(MockMvcRequestBuilders.delete("/diet/{dietId}", 1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        // Verify service method invocation
+        verify(dietService, times(1)).deleteDietById(1L);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package com.socgen.laxmihealth.user;
 
 import static org.junit.jupiter.api.Assertions.*;
