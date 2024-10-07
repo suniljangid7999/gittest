@@ -1,3 +1,102 @@
+package com.socgen.laxmihealth.workout.exercise;
+
+import com.socgen.laxmihealth.workout.exercise.ExerciseController;
+import com.socgen.laxmihealth.workout.exercise.ExerciseService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class ExerciseControllerTest {
+
+    @InjectMocks
+    private ExerciseController exerciseController;
+
+    @Mock
+    private ExerciseService exerciseService;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testGetExercises() {
+        // Arrange
+        List<Exercise> exercises = new ArrayList<>();
+        exercises.add(new Exercise(1L, "Push Up", "A basic exercise", "Strength"));
+        exercises.add(new Exercise(2L, "Squat", "Lower body exercise", "Strength"));
+
+        when(exerciseService.getAllExercises()).thenReturn(exercises);
+
+        // Act
+        ResponseEntity<List<Exercise>> response = exerciseController.getExercises();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        verify(exerciseService, times(1)).getAllExercises();
+    }
+
+    @Test
+    public void testGetExerciseById() {
+        // Arrange
+        long exerciseId = 1L;
+        Exercise exercise = new Exercise(exerciseId, "Push Up", "A basic exercise", "Strength");
+
+        when(exerciseService.getExerciseById(exerciseId)).thenReturn(exercise);
+
+        // Act
+        ResponseEntity<Exercise> response = exerciseController.getExercise(exerciseId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(exerciseId, response.getBody().getExerciseId());
+        verify(exerciseService, times(1)).getExerciseById(exerciseId);
+    }
+
+    @Test
+    public void testCreateExercise() {
+        // Arrange
+        Exercise exercise = new Exercise(null, "Lunge", "Lower body exercise", "Strength");
+        Exercise savedExercise = new Exercise(1L, "Lunge", "Lower body exercise", "Strength");
+
+        when(exerciseService.createExercise(any(Exercise.class))).thenReturn(savedExercise);
+
+        // Act
+        ResponseEntity<Exercise> response = exerciseController.createExercise(exercise);
+
+        // Assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(savedExercise.getExerciseId(), response.getBody().getExerciseId());
+        verify(exerciseService, times(1)).createExercise(any(Exercise.class));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package com.socgen.laxmihealth.diet;
 
 import com.socgen.laxmihealth.diet.Diet;
