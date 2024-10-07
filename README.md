@@ -1,5 +1,107 @@
 package com.socgen.laxmihealth.workout.exercise;
 
+import com.socgen.laxmihealth.workout.exercise.Exercise;
+import com.socgen.laxmihealth.workout.exercise.ExerciseRepository;
+import com.socgen.laxmihealth.workout.exercise.ExerciseService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class ExerciseServiceTest {
+
+    @InjectMocks
+    private ExerciseService exerciseService;
+
+    @Mock
+    private ExerciseRepository exerciseRepository;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testGetAllExercises() {
+        // Arrange
+        List<Exercise> exercises = new ArrayList<>();
+        exercises.add(new Exercise(1L, "Push Up", "A basic exercise", "Strength"));
+        exercises.add(new Exercise(2L, "Squat", "Lower body exercise", "Strength"));
+
+        when(exerciseRepository.findAll()).thenReturn(exercises);
+
+        // Act
+        List<Exercise> result = exerciseService.getAllExercises();
+
+        // Assert
+        assertEquals(2, result.size());
+        verify(exerciseRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testGetExerciseById() {
+        // Arrange
+        long exerciseId = 1L;
+        Exercise exercise = new Exercise(exerciseId, "Push Up", "A basic exercise", "Strength");
+
+        when(exerciseRepository.findById(exerciseId)).thenReturn(Optional.of(exercise));
+
+        // Act
+        Exercise result = exerciseService.getExerciseById(exerciseId);
+
+        // Assert
+        assertEquals(exerciseId, result.getExerciseId());
+        verify(exerciseRepository, times(1)).findById(exerciseId);
+    }
+
+    @Test
+    public void testGetExerciseById_NotFound() {
+        // Arrange
+        long exerciseId = 1L;
+
+        when(exerciseRepository.findById(exerciseId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ObjectNotFoundException.class, () -> exerciseService.getExerciseById(exerciseId));
+        verify(exerciseRepository, times(1)).findById(exerciseId);
+    }
+
+    @Test
+    public void testCreateExercise() {
+        // Arrange
+        Exercise exercise = new Exercise(null, "Lunge", "Lower body exercise", "Strength");
+        Exercise savedExercise = new Exercise(1L, "Lunge", "Lower body exercise", "Strength");
+
+        when(exerciseRepository.save(any(Exercise.class))).thenReturn(savedExercise);
+
+        // Act
+        Exercise result = exerciseService.createExercise(exercise);
+
+        // Assert
+        assertEquals(savedExercise.getExerciseId(), result.getExerciseId());
+        verify(exerciseRepository, times(1)).save(any(Exercise.class));
+    }
+}
+
+
+
+
+
+
+
+
+package com.socgen.laxmihealth.workout.exercise;
+
 import com.socgen.laxmihealth.workout.exercise.ExerciseController;
 import com.socgen.laxmihealth.workout.exercise.ExerciseService;
 import org.junit.jupiter.api.BeforeEach;
