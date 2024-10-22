@@ -1,0 +1,64 @@
+Slide 2: Introduction
+Objective: Explain the purpose of the EXP Dashboard.
+To track and visualize employee engagement metrics, participation, and feedback.
+Helps in identifying high-impact engagement programs and monitoring employee involvement.
+Goal: To provide a tool that allows better analysis of employee participation and engagement at both individual and business levels
+
+
+Slide 3: Dashboard Components Overview
+Key Metrics:
+Participation Rate
+Leaderboard at Individual and Business Level
+Program with the Highest Consumption
+Testimonials
+Technology Stack: Front-end (Angular/React), Back-end (Spring Boot/Django), Database (SQL)
+
+
+Slide 4: 1. Participation Rate
+Objective: Show the percentage of employees participating in various engagement programs.
+Data Sources: Program registrations, logins, attendance records.
+Display:
+Metric card (e.g., "75% participation").
+Pie or bar chart to visualize participation breakdown.
+Technology:
+Frontend: Angular/React
+Visualization: Chart.js/D3.js
+
+
+Slide 5: 2. Leaderboard at Individual and Business Level
+Objective: Display rankings based on participation or performance.
+Individual Level Leaderboard:
+Ranking of employees based on participation/points.
+Business Level Leaderboard:
+Ranking of business lines based on cumulative performance.
+Data Sources: Participation data, performance scores.
+Display:
+Table with rankings, employee names, scores.
+
+Dynamic updates using WebSockets or polling.
+Technology:
+UI: Material UI/Bootstrap
+Backend: REST APIs using Spring Boot/Django.
+
+
+
+Slide 6: 3. Program with Highest Consumption
+Objective: Highlight the most popular engagement program.
+Data Sources: Participation logs, event attendance.
+Display:
+Highlighted card (e.g., "Employee Wellness Program – 500 Participants").
+Bar chart showcasing program participation.
+
+Technology:
+Backend: SQL query for aggregation.
+Frontend: React/Angular for dynamic display.
+
+Slide 7: 4. Testimonials
+Objective: Display feedback from employees on engagement programs.
+Data Sources: Survey data, feedback forms.
+Display:
+Testimonial carousel or list of comments.
+Optional star ratings or employee photos.
+Technology:
+UI: Angular Material/React Bootstrap carousel component.
+Backend: REST API to fetch testimonial data.
