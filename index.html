@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+no<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -110,4 +110,72 @@ public class ExcelService {
         workbook.close();
     }
 }
+
+                     import org.apache.poi.ss.usermodel.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExcelFileProcessor {
+
+    public List<String[]> processExcelFile(MultipartFile file) throws Exception {
+        // Validate file
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty or null.");
+        }
+
+        // Validate file type
+        String fileContentType = file.getContentType();
+        if (!"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(fileContentType)
+                && !"application/vnd.ms-excel".equals(fileContentType)) {
+            throw new IllegalArgumentException("Invalid file type. Please upload an Excel file.");
+        }
+
+        // Get file bytes and create ByteArrayInputStream
+        byte[] fileBytes = file.getBytes();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileBytes);
+
+        List<String[]> extractedData = new ArrayList<>();
+
+        // Parse Excel file
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
+
+        // Iterate through rows, skipping the header row
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+                String name = getCellValue(row.getCell(0));  // Assuming "name" is in column 0
+                String description = getCellValue(row.getCell(1)); // Assuming "description" is in column 1
+                extractedData.add(new String[]{name, description});
+            }
+        }
+
+        return extractedData;
+    }
+
+    private String getCellValue(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return "";
+        }
+    }
+
+    public void displayData(List<String[]> data) {
+        System.out.println("Extracted Data:");
+        for (String[] row : data) {
+            System.out.println("Name: " + row[0] + ", Description: " + row[1]);
+        }
+    }
+}
+             
                      
