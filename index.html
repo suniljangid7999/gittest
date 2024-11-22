@@ -296,5 +296,182 @@ public class ExcelService {
         }
     }
 }
+                 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class ExcelService {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    public void saveEmployeesFromExcel(MultipartFile file) throws IOException {
+        List<EmployeeDTO> employeeDTOs = parseExcelToDTOs(file);
+
+        // Map DTOs to entities and save
+        List<Employee> employees = new ArrayList<>();
+        for (EmployeeDTO dto : employeeDTOs) {
+            Employee employee = new Employee();
+            employee.setName(dto.getName());
+            employee.setDepartment(dto.getDepartment());
+            employee.setSalary(dto.getSalary());
+            employees.add(employee);
+        }
+
+        employeeRepository.saveAll(employees);
+    }
+
+    private List<EmployeeDTO> parseExcelToDTOs(MultipartFile file) throws IOException {
+        List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0) continue; // Skip header row
+
+            EmployeeDTO dto = new EmployeeDTO();
+            dto.setName(getCellValueAsString(row.getCell(0)));
+            dto.setDepartment(getCellValueAsString(row.getCell(1)));
+            dto.setSalary(getCellValueAsDouble(row.getCell(2)));
+
+            employeeDTOs.add(dto);
+        }
+
+        workbook.close();
+        return employeeDTOs;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        return cell == null ? "" : cell.toString();
+    }
+
+    private Double getCellValueAsDouble(Cell cell) {
+        return cell == null ? 0.0 : cell.getNumericCellValue();
+    }
+}
+
+
+                 import org.springframework.stereotype.Component;
+
+@Component
+public class EmployeeMapper {
+
+    public Employee mapToEntity(EmployeeDTO employeeDTO) {
+        if (employeeDTO == null) {
+            return null;
+        }
+
+        Employee employee = new Employee();
+        employee.setName(employeeDTO.getName());
+        employee.setDepartment(employeeDTO.getDepartment());
+        employee.setSalary(employeeDTO.getSalary());
+
+        return employee;
+    }
+
+    public EmployeeDTO mapToDTO(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
+
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setName(employee.getName());
+        employeeDTO.setDepartment(employee.getDepartment());
+        employeeDTO.setSalary(employee.getSalary());
+
+        return employeeDTO;
+    }
+}
+                 
+                 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class ExcelService {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;  // Inject the mapper
+
+    public void saveEmployeesFromExcel(MultipartFile file) throws IOException {
+        List<EmployeeDTO> employeeDTOs = parseExcelToDTOs(file);
+
+        // Use the mapper to map DTOs to entities
+        List<Employee> employees = new ArrayList<>();
+        for (EmployeeDTO dto : employeeDTOs) {
+            employees.add(employeeMapper.mapToEntity(dto)); // Map DTO to Entity
+        }
+
+        employeeRepository.saveAll(employees);  // Save the entities to the database
+    }
+
+    private List<EmployeeDTO> parseExcelToDTOs(MultipartFile file) throws IOException {
+        List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0) continue; // Skip header row
+
+            EmployeeDTO dto = new EmployeeDTO();
+            dto.setName(getCellValueAsString(row.getCell(0)));
+            dto.setDepartment(getCellValueAsString(row.getCell(1)));
+            dto.setSalary(getCellValueAsDouble(row.getCell(2)));
+
+            employeeDTOs.add(dto);
+        }
+
+        workbook.close();
+        return employeeDTOs;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        return cell == null ? "" : cell.toString();
+    }
+
+    private Double getCellValueAsDouble(Cell cell) {
+        return cell == null ? 0.0 : cell.getNumericCellValue();
+    }
+}
+                 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
+
+    @GetMapping
+    public List<EmployeeDTO> getAllEmployees() {
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream()
+                        .map(employeeMapper::mapToDTO)  // Map entity to DTO
+                        .collect(Collectors.toList());
+    }
+}
+                 
                  
                      
