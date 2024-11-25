@@ -1,3 +1,11 @@
+
+Thank you for your response. The delay in claiming the work-from-home assets reimbursement was due to personal circumstances. At the time of joining, I did not have sufficient funds to purchase the required items. Additionally, in November, I had my sister's wedding, which required me to travel outside Bangalore and focus on family commitments.
+
+Once I returned to Bangalore and was in a position to purchase the necessary assets, the reimbursement period had already exceeded the 90-day limit. I apologize for the delay and appreciate your understanding of the situation.
+
+Please let me know if there are any
+
+
 Subject: Request for Approval of Work-from-Home Assets Reimbursement
 
 Dear [HR Representative's Name],
