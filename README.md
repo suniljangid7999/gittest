@@ -1,4 +1,36 @@
-package com.socgen.laxmihealth.community;
+Subject: Request for Approval of Work-from-Home Assets Reimbursement
+
+Dear [HR Representative's Name],
+
+I hope this email finds you well. I am writing to seek your approval for my work-from-home assets reimbursement request, which has been returned to me as it exceeds the 90-day period from my date of joining.
+
+I kindly request your assistance in processing this reimbursement as it includes essential expenses I incurred to set up a conducive work environment for my role. Please let me know if any additional information or documentation is required to facilitate the approval.
+
+Looking forward to your support on this matter.
+
+Thank you for your time and consideration.
+
+Best regards,
+[Your Full Name]
+[Your Employee ID, if applicable]
+[Your Contact Information]
+
+Feel free to adjust the details to suit your situation.
+
+
+2/2
+
+
+
+
+
+
+
+
+
+
+
+ChatGPT can make mistakes. Check impackage com.socgen.laxmihealth.community;
 
 import com.socgen.laxmihealth.community.CommunityController;
 import com.socgen.laxmihealth.community.CommunityPost;
