@@ -1,4 +1,18 @@
+Subject: Inquiry About Software Engineer Openings
 
+Dear Tina,
+
+I hope this email finds you well.
+
+I am writing to express my interest in exploring opportunities for a Software Engineer position within the company. Currently, I am in a non-billable role, and I am eager to contribute to a project where my skills and experience inI am eager to contribute to a project where my skills and experience in [mention specific skills, e.g., Java, Angular, Spring Boot, etc.] can add value.
+
+If there are any openings or upcoming projects requiring a Software Engineer, I would be grateful for the chance to discuss how I can contribute effectively to the team. Please let me know if there are any opportunities available, or if there are additional steps I should take to apply for such roles.
+
+Looking forward to your guidance.
+
+Best regards, [mention specific skills, e.g., Java, Angular, Spring Boot, etc.] can add value.
+
+If there are any openings or upcoming
 Thank you for your response. The delay in claiming the work-from-home assets reimbursement was due to personal circumstances. At the time of joining, I did not have sufficient funds to purchase the required items. Additionally, in November, I had my sister's wedding, which required me to travel outside Bangalore and focus on family commitments.
 
 Once I returned to Bangalore and was in a position to purchase the necessary assets, the reimbursement period had already exceeded the 90-day limit. I apologize for the delay and appreciate your understanding of the situation.
