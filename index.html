@@ -1,3 +1,70 @@
+
+@Service
+public class ExcelService {
+
+    @Autowired
+    private ExcelDataRepository excelDataRepository;
+
+    public void saveExcelData(MultipartFile file, int excelType) throws IOException {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+
+        List<String> headers = new ArrayList<>();
+        List<ExcelData> excelDataList = new ArrayList<>();
+
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0) {
+                // Read headers from the first row
+                for (Cell cell : row) {
+                    headers.add(cell.getStringCellValue());
+                }
+            } else {
+                // Create a map for each row
+                Map<String, Object> dataMap = new HashMap<>();
+
+                for (int i = 0; i < headers.size(); i++) {
+                    Cell cell = row.getCell(i);
+                    Object value = getCellValue(cell);
+                    dataMap.put(headers.get(i), value);
+                }
+
+                // Create and save ExcelData
+                ExcelData excelData = new ExcelData();
+                excelData.setExcelType(excelType);
+                excelData.setData(dataMap);
+                excelDataList.add(excelData);
+            }
+        }
+
+        // Save all rows to the database
+        excelDataRepository.saveAll(excelDataList);
+        workbook.close();
+    }
+
+    private Object getCellValue(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue();
+                }
+                return cell.getNumericCellValue();
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return null;
+        }
+    }
+}
+                         
+
+
 no<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
