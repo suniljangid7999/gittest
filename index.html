@@ -1,3 +1,124 @@
+package org.sgcib.marpe.exceptions.infra.jpa.mapper;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sgcib.marpe.exceptions.domain.Configuration;
+import org.sgcib.marpe.exceptions.domain.SubTask;
+import org.sgcib.marpe.exceptions.infra.jpa.entity.ConfigurationEntity;
+import org.sgcib.marpe.exceptions.infra.jpa.entity.SubTaskEntity;
+import org.sgcib.marpe.exceptions.infra.jpa.mapper.ConfigurationEntityMapper;
+import org.sgcib.marpe.exceptions.infra.jpa.mapper.SubTaskEntityMapper;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+class ConfigurationEntityMapperTest {
+
+    @InjectMocks
+    private ConfigurationEntityMapper configurationEntityMapper = Mappers.getMapper(ConfigurationEntityMapper.class);
+
+    @Mock
+    private SubTaskEntityMapper subTaskEntityMapper;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testToBusinessObject() {
+        // Prepare test data
+        UUID id = UUID.randomUUID();
+        ConfigurationEntity configurationEntity = new ConfigurationEntity();
+        configurationEntity.setId(id);
+        configurationEntity.setTaskName("Test Task");
+        configurationEntity.setContact("test@example.com");
+        
+        SubTaskEntity subTaskEntity = new SubTaskEntity();
+        subTaskEntity.setId(UUID.randomUUID());
+        subTaskEntity.setTaskName("Sub Task 1");
+        
+        List<SubTaskEntity> subTaskEntities = Arrays.asList(subTaskEntity);
+        configurationEntity.setSubTasks(subTaskEntities);
+        
+        SubTask subTask = new SubTask();
+        subTask.setId(subTaskEntity.getId());
+        subTask.setTaskName(subTaskEntity.getTaskName());
+
+        // Mock behavior of SubTaskEntityMapper
+        when(subTaskEntityMapper.toBusinessObject(subTaskEntity)).thenReturn(subTask);
+
+        // Call the method to test
+        Configuration configuration = configurationEntityMapper.toBusinessObject(configurationEntity);
+
+        // Assertions
+        assertNotNull(configuration);
+        assertEquals(id, configuration.getId());
+        assertEquals("Test Task", configuration.getTaskName());
+        assertEquals("test@example.com", configuration.getContact());
+        assertNotNull(configuration.getSubTasks());
+        assertEquals(1, configuration.getSubTasks().size());
+        assertEquals("Sub Task 1", configuration.getSubTasks().get(0).getTaskName());
+
+        // Verify mock interactions
+        verify(subTaskEntityMapper).toBusinessObject(subTaskEntity);
+    }
+
+    @Test
+    void testToEntity() {
+        // Prepare test data
+        UUID id = UUID.randomUUID();
+        Configuration configuration = new Configuration();
+        configuration.setId(id);
+        configuration.setTaskName("Test Task");
+        configuration.setContact("test@example.com");
+        
+        SubTask subTask = new SubTask();
+        subTask.setId(UUID.randomUUID());
+        subTask.setTaskName("Sub Task 1");
+        
+        List<SubTask> subTasks = Arrays.asList(subTask);
+        configuration.setSubTasks(subTasks);
+        
+        SubTaskEntity subTaskEntity = new SubTaskEntity();
+        subTaskEntity.setId(subTask.getId());
+        subTaskEntity.setTaskName(subTask.getTaskName());
+
+        // Mock behavior of SubTaskEntityMapper
+        when(subTaskEntityMapper.toEntity(subTask)).thenReturn(subTaskEntity);
+
+        // Call the method to test
+        ConfigurationEntity configurationEntity = configurationEntityMapper.toEntity(configuration);
+
+        // Assertions
+        assertNotNull(configurationEntity);
+        assertEquals(id, configurationEntity.getId());
+        assertEquals("Test Task", configurationEntity.getTaskName());
+        assertEquals("test@example.com", configurationEntity.getContact());
+        assertNotNull(configurationEntity.getSubTasks());
+        assertEquals(1, configurationEntity.getSubTasks().size());
+        assertEquals("Sub Task 1", configurationEntity.getSubTasks().get(0).getTaskName());
+
+        // Verify mock interactions
+        verify(subTaskEntityMapper).toEntity(subTask);
+    }
+}
+
+
+
+
+
+
+
+
 
 @Service
 public class ExcelService {
