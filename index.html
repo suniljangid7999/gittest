@@ -1,3 +1,83 @@
+
+
+@Test
+public void testReviewWithControlRoomApproval() {
+    // Given
+    PreApproval mockPreApproval = mock(PreApproval.class);
+    when(mockPreApproval.getLocalCompliance()).thenReturn(true); // Ensure this is mocked correctly
+
+    trade.setPreApproval(mockPreApproval); 
+    trade.setPreApprovalStatus("CONTROL_ROOM_PENDING_VALIDATION");
+
+    Reviewer controlRoomReviewer = new Reviewer("CONTROL_ROOM");
+    TradeDecision controlRoomDecision = new TradeDecision("APPROVED");
+
+    // When
+    trade.review(controlRoomReviewer, controlRoomDecision);
+
+    // Then
+    assertEquals(CONTROL_ROOM_APPROVED, trade.getStatus());
+}
+
+@Test
+public void testReviewWithControlRoomDecline() {
+    // Given
+    PreApproval mockPreApproval = mock(PreApproval.class);
+    when(mockPreApproval.getLocalCompliance()).thenReturn(true); // Mock compliance check
+
+    trade.setPreApproval(mockPreApproval);
+    trade.setPreApprovalStatus("CONTROL_ROOM_PENDING_VALIDATION");
+
+    Reviewer controlRoomReviewer = new Reviewer("CONTROL_ROOM");
+    TradeDecision controlRoomDecision = new TradeDecision("DECLINED");
+
+    // When
+    trade.review(controlRoomReviewer, controlRoomDecision);
+
+    // Then
+    assertEquals(CONTROL_ROOM_DECLINED, trade.getStatus());
+}
+
+@Test
+public void testReviewWithControlRoomUnmatchedStatus() {
+    // Given
+    PreApproval mockPreApproval = mock(PreApproval.class);
+    when(mockPreApproval.getLocalCompliance()).thenReturn(true);
+
+    trade.setPreApproval(mockPreApproval);
+    trade.setPreApprovalStatus("CONTROL_ROOM_PENDING_VALIDATION"); // Ensure it matches the condition
+
+    Reviewer controlRoomReviewer = new Reviewer("CONTROL_ROOM");
+    TradeDecision controlRoomDecision = new TradeDecision("TEST");
+
+    // When
+    trade.review(controlRoomReviewer, controlRoomDecision);
+
+    // Then
+    // Ensure the status remains unchanged because "TEST" is not in the switch-case
+    assertNotEquals(CONTROL_ROOM_APPROVED, trade.getStatus());
+    assertNotEquals(CONTROL_ROOM_DECLINED, trade.getStatus());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package org.sgcib.marpe.exceptions.infra.jpa.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
