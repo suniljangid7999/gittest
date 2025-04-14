@@ -1,4 +1,55 @@
+@Service
+public class ReminderService {
 
+    @Autowired
+    private TradeReminderRepository tradeReminderRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    public Map<String, List<TradeReminderResponse>> processReminders(List<ReminderRequest> requests) {
+        Map<String, List<TradeReminderResponse>> responseMap = new HashMap<>();
+
+        for (ReminderRequest request : requests) {
+            List<TradeReminder> reminders = tradeReminderRepository.findByTradeIdIn(request.getTradeIds());
+            LocalDate now = LocalDate.now();
+            List<TradeReminderResponse> updatedResponses = new ArrayList<>();
+
+            for (TradeReminder reminder : reminders) {
+                reminder.setReminderDate(now);
+                reminder.setManualReminder(true);
+                updatedResponses.add(new TradeReminderResponse(reminder.getTradeId(), now, true));
+            }
+
+            tradeReminderRepository.saveAll(reminders);
+
+            // Store in map for response
+            responseMap.put(request.getRequestor().getEmail(), updatedResponses);
+
+            // Send email
+            sendReminderEmail(request.getRequestor().getEmail(), updatedResponses);
+        }
+
+        return responseMap;
+    }
+
+    private void sendReminderEmail(String email, List<TradeReminderResponse> updatedTrades) {
+        StringBuilder body = new StringBuilder("Reminder set for the following trades:\n\n");
+        for (TradeReminderResponse trade : updatedTrades) {
+            body.append("Trade ID: ").append(trade.getTradeId())
+                .append(", Reminder Date: ").append(trade.getReminderDate())
+                .append(", Manual Reminder: ").append(trade.getManualReminder())
+                .append("\n");
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Trade Reminder Confirmation");
+        message.setText(body.toString());
+
+        javaMailSender.send(message);
+    }
+}
 
 @Test
 public void testReviewWithControlRoomApproval() {
