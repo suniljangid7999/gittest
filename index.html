@@ -1,3 +1,116 @@
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class BrokerTradeInformationExport {
+    @JsonProperty("Account Number")
+    private String accountNumber;
+
+    @JsonProperty("CUSIP")
+    private String cusip;
+
+    @JsonProperty("SYMBOL")
+    private String symbol;
+
+    @JsonProperty("Security Name")
+    private String securityName;
+
+    @JsonProperty("Quantity")
+    private String quantity;
+
+    @JsonProperty("Quantity Original")
+    private String quantityOriginal;
+
+    @JsonProperty("Buy/Sell")
+    private String buySell;
+
+    @JsonProperty("Trade Date")
+    private String tradeDate;
+
+    @JsonProperty("ISIN")
+    private String isin;
+
+    @JsonProperty("Date Original")
+    private String tradeDateOriginal;
+
+    @Override
+    public String toString() {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            return ow.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+}
+
+
+
+@UtilityClass
+public class BrokerFeedExportConfiguration {
+    public static final Map<String, FieldMapping> TRADE_FIELDS = ImmutableMap.<String, FieldMapping>builder()
+        .put("Account Number", new FieldMapping("accountNumber", STRING))
+        .put("CUSIP", new FieldMapping("cusip", STRING))
+        .put("SYMBOL", new FieldMapping("symbol", STRING))
+        .put("Security Name", new FieldMapping("securityName", STRING))
+        .put("Quantity", new FieldMapping("quantity", STRING))
+        .put("Quantity Original", new FieldMapping("quantityOriginal", STRING))
+        .put("Buy/Sell", new FieldMapping("buySell", STRING))
+        .put("Trade Date", new FieldMapping("tradeDate", STRING))
+        .put("ISIN", new FieldMapping("isin", STRING))
+        .put("Date Original", new FieldMapping("tradeDateOriginal", STRING))
+        .build();
+}
+
+
+
+        List<TradeInformation> trades = brokerTradeInformationRepository.findByIntegrationId(integrationId);
+List<BrokerTradeInformationExport> exports = trades.stream().map(t -> new BrokerTradeInformationExport(
+    t.getAccountNumber(),
+    t.getCusip(),
+    t.getSymbol(),
+    t.getSecurityName(),
+    t.getQuantity(),
+    t.getQuantityOriginal(),
+    t.getBuySell(),
+    t.getTradeDate(),
+    t.getIsin(),
+    t.getTradeDateOriginal().toString()
+)).collect(Collectors.toList());
+
+
+
+    InputStream csvInputStream = csvBuilder.buildCustom(exports, BrokerFeedExportConfiguration.TRADE_FIELDS);
+
+ResponseAttachment responseAttachment = new ResponseAttachment();
+responseAttachment.setResource(csvInputStream);
+responseAttachment.setFileName(integrationId + "_TradeReport.csv");
+responseAttachment.setContentType("text/csv");
+return responseAttachment;
+
+
+
+    public ResponseAttachment getBrokerFeedReportCSV(Integer integrationId, String fileType) throws IOException {
+    switch (fileType) {
+        case "TRADE":
+            List<TradeInformation> trades = brokerTradeInformationRepository.findByIntegrationId(integrationId);
+            List<BrokerTradeInformationExport> exports = trades.stream().map(/* map to export DTO */).collect(Collectors.toList());
+            InputStream stream = csvBuilder.buildCustom(exports, BrokerFeedExportConfiguration.TRADE_FIELDS);
+            return new ResponseAttachment(stream, integrationId + "_TradeReport.csv", "text/csv");
+
+        // TODO: Add ACCOUNT and POSITION similarly with their Export DTOs and FieldMappings
+
+        default:
+            throw new IllegalArgumentException("Invalid file type");
+    }
+}
+
+
+
+
+
+
+
+
 Here’s a clean and professional way you can phrase your point for the sprint retrospective:
 
 "As we are currently working on improving the performance of the PAD application, I suggest that instead of allocating separate time to identify performance issues, we can integrate this effort into our regular story work. While working on a story, we naturally go through the code flow, and that gives us a great opportunity to identify and address performance bottlenecks as part of the development process."
