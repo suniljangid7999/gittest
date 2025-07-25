@@ -1,3 +1,97 @@
+Software Engineer – Société Générale
+
+Project: Personal Account Dealing (PAD) Application
+Duration: [Month, Year] – Present
+Location: [Your Location, Optional]
+
+Project Overview:
+PAD is an internal compliance application developed to monitor employee trades and prevent internal trading violations. The system allows employees to declare personal trades, private investments, and outside business activities (OBAs). These declarations are routed through configurable approval workflows to ensure compliance with regulatory standards and internal policies.
+
+Key Responsibilities:
+	•	Workflow Enhancement:
+Redesigned and extended the existing trade approval workflow to include a third level of approval (Local Compliance), in addition to Manager and Control Room approval. Ensured seamless integration of the new stage while preserving backward compatibility with existing flows.
+	•	Compliance & Process Automation:
+Implemented business logic for multi-level approval routing and exception handling, ensuring adherence to evolving compliance norms.
+	•	Broker Feed Reconciliation:
+Developed and maintained the file processing module that ingests broker feed data files sent by the reconciliation team.
+	•	Automated parsing and categorization of feed data into parsed, unparsed, and failed categories.
+	•	Built robust handling and reporting mechanisms to track ingestion statistics, exceptions, and feed integrity.
+	•	Reconciliation Workflow Coordination:
+Acted as the orchestrator between the Reconciliation team and the Workflow engine, enabling transparent data validation processes before triggering downstream approvals.
+	•	File Handling and Data Integrity:
+Enabled secure file handling with validation checks for broker data to ensure high-quality ingestion and reconciliation.
+	•	Cross-Team Collaboration:
+Worked closely with compliance officers, reconciliation teams, and control room members to understand real-world use cases and deliver compliant features.
+
+Technologies Used:
+	•	Java, Spring Boot, REST APIs
+	•	PostgreSQL, JPA/Hibernate
+	•	Angular (for UI integrations)
+	•	File parsing & validation (CSV/Excel feeds)
+	•	Git, Maven, Agile/JIRA
+
+Impact:
+	•	Reduced manual effort for compliance checks by 30% through automated workflow enhancements.
+	•	Enabled complete auditability and traceability of trade approval flows.
+	•	Improved accuracy of trade feed parsing, minimizing exceptions and reconciliation errors.
+
+⸻
+
+Let me know if you’d like a separate bullet list version for a more condensed resume, or if you’d like help tailoring this for LinkedIn.
+
+
+
+
+
+
+
+Great point, Sunil! If you’ve mentioned that you developed and optimized microservices using Spring Boot and Java, and that it improved performance by 20%, interviewers will definitely ask follow-up questions, like:
+
+“How exactly did you optimize the microservices?”
+“What performance issues were there before?”
+“How did you measure the 20% improvement?”
+
+To answer confidently, here’s a structured explanation you can give based on typical optimizations, plus we’ll tailor it to your project context (PAD application):
+
+⸻
+
+✅ How to explain your optimization work in an interview:
+
+“In our PAD application, the microservices were originally handling trade approvals, reconciliation data, and broker feed processing in a somewhat monolithic or tightly coupled manner. I worked on optimizing these services using the following strategies:”
+
+⸻
+
+🔧 Specific optimizations you can mention:
+	1.	Service Decoupling & Refactoring:
+	•	Broke down tightly coupled logic into smaller, independent microservices for trade handling, OBAs, and reconciliation flows.
+	•	Ensured single responsibility per service (SRP – aligns with SOLID principles).
+	2.	Database Query Optimization:
+	•	Replaced N+1 queries with JOIN FETCH in JPA/Hibernate.
+	•	Used pagination and projection (DTOs) to reduce data load.
+	•	Added indexing on frequently queried fields like employee_id, status, and trade_date.
+	3.	Caching (if applicable):
+	•	Introduced caching (e.g., using Spring Cache or Redis) for static reference data like approval rules or broker metadata.
+	4.	Thread/Async Processing:
+	•	Used @Async and multithreading to parallelize file parsing and reconciliation processing.
+	5.	Reduced Response Time:
+	•	Minimized payload sizes in REST APIs by returning only required fields.
+	•	Switched from synchronous to asynchronous APIs for certain backend jobs (e.g., broker file processing).
+	6.	Memory & Resource Profiling:
+	•	Used tools like VisualVM or Spring Actuator to identify bottlenecks (high CPU, GC pauses).
+	•	Tuned JVM parameters and thread pool sizes.
+	7.	Code Optimization:
+	•	Removed redundant object creation and optimized loop constructs.
+	•	Used Stream APIs with care to avoid unnecessary memory allocation.
+	8.	Performance Testing:
+	•	Used JMeter/Postman to compare API response times before and after optimization.
+	•	Found that average response time improved by ~20% in high-load scenarios.
+
+⸻
+
+✅ How to summarize it during the interview:
+
+“Our PAD microservices were initially facing performance lags, especially during file ingestion and approval routing. I analyzed the bottlenecks, optimized DB queries, reduced unnecessary API payloads, and introduced asynchronous processing where needed. I also profiled memory usage and added caching where applicable. After these changes, we observed a 20% performance boost, especially in the reconciliation workflows and trade approval APIs under load.”
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
